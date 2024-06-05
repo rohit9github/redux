@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import axios from "axios"
 import { useDispatch, useSelector } from "react-redux";
-import { ADD_TODO, GET_TODO } from "../Redux/ActionType";
+import { ADD_TODO, DELETE_TODO, EDIT_TODO, GET_TODO } from "../Redux/ActionType";
 
 
 function Home() {
 
     let [task, setTask] = useState({});
     let dispatch = useDispatch()
+    let [id,setId] = useState(0)
 
-    let data = useSelector(store=>store.todo)
+    let data = useSelector(store => store.todo)
 
 
     let getValue = (e) => {
@@ -22,25 +23,53 @@ function Home() {
 
     let submitData = (e) => {
         e.preventDefault();
+        if(id === 0){
         axios.post("http://localhost:3000/todo", task)
             .then((res) => {
                 dispatch({ type: ADD_TODO, payload: res.data });
                 alert("data added");
                 setTask({})
                 console.log(res.data)
+                getData()
             })
+        }
+        else{
+            axios.patch(`http://localhost:3000/todo/${id}`,task)
+            .then(()=>{
+                dispatch({type:EDIT_TODO,payload:id})
+                setTask({});
+                setId(0)
+                getData()
+            })
+        }
+    }
+
+    let getData = () => {
+        axios.get("http://localhost:3000/todo")
+            .then((res) => {
+                dispatch({ type: GET_TODO, payload: res.data });
+            }
+            )
     }
 
     useEffect(() => {
-        let getData = () => {
-            axios.get("http://localhost:3000/todo")
-                .then((res) => {
-                    dispatch({type:GET_TODO,payload:res.data});
-                }
-            )
-            }
         getData()
-    }, [])
+    }, []);
+
+    let deleteTask = (id) => {
+        axios.delete(`http://localhost:3000/todo/${id}`)
+            .then(() => {
+                dispatch({ type: DELETE_TODO, payload: id });
+                alert("data deleted");
+                getData();
+            })
+    }
+
+    let editTask = (id) => {
+        let dd = data.find((v)=>v.id==id);
+        setTask(dd)
+        setId(id)
+    }
 
     return (
         <>
@@ -50,15 +79,17 @@ function Home() {
                 <label>Enter Your Task :- </label>
                 <input type="text" name="task" value={task.task ? task.task : ""} placeholder="Enter Your Task" onChange={(e) => getValue(e)} />
                 <br /><br />
-                <button type="submit" style={{ backgroundColor: "gray" }}>Submit</button>
+                <button type="submit" style={{ backgroundColor: "gray" }}>{id === 0 ? "Submit":"Edit"}</button>
             </form>
 
             <h1>View Your Task</h1>
 
-            {data.map((v,i)=>{
-                return(
+            {data.map((v, i) => {
+                return (
                     <div key={i}>
                         <h3>TASK :- {v.task}</h3>
+                        <button onClick={() => deleteTask(v.id)}>delete</button>
+                        <button onClick={() => editTask(v.id)}>Edit</button>
                     </div>
                 )
             })}
