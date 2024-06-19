@@ -8,8 +8,9 @@ function Home() {
 
     let [task, setTask] = useState({});
     let dispatch = useDispatch();
-    let [id,setId] = useState(0);
-    let[filtered,setFiltered] = useState("")
+    let [id, setId] = useState(0);
+    let [filtered, setFiltered] = useState("");
+    let [search, setSearch] = useState("");
 
     let data = useSelector(store => store.todo)
 
@@ -24,24 +25,24 @@ function Home() {
 
     let submitData = (e) => {
         e.preventDefault();
-        if(id === 0){
-        axios.post("http://localhost:3000/todo", task)
-            .then((res) => {
-                dispatch({ type: ADD_TODO, payload: res.data });
-                alert("data added");
-                setTask({})
-                console.log(res.data)
-                getData()
-            })
+        if (id === 0) {
+            axios.post("http://localhost:3000/todo", task)
+                .then((res) => {
+                    dispatch({ type: ADD_TODO, payload: res.data });
+                    alert("data added");
+                    setTask({})
+                    console.log(res.data)
+                    getData()
+                })
         }
-        else{
-            axios.patch(`http://localhost:3000/todo/${id}`,task)
-            .then(()=>{
-                dispatch({type:EDIT_TODO,payload:id})
-                setTask({});
-                setId(0)
-                getData()
-            })
+        else {
+            axios.patch(`http://localhost:3000/todo/${id}`, task)
+                .then(() => {
+                    dispatch({ type: EDIT_TODO, payload: id })
+                    setTask({});
+                    setId(0)
+                    getData()
+                })
         }
     }
 
@@ -66,11 +67,12 @@ function Home() {
     }
 
     let editTask = (id) => {
-        let dd = data.find((v)=>v.id==id);
+        let dd = data.find((v) => v.id == id);
         setTask(dd)
         setId(id)
     }
-    let filteredData = filtered ? data.filter((v) => v.category === filtered):data  ;
+    let filteredData = filtered ? data.filter((v) => v.category === filtered) : data;
+    filteredData = search ? filteredData.filter((v) => v.task.toLowerCase().includes(search.toLowerCase())) : filteredData;
 
     return (
         <>
@@ -81,7 +83,7 @@ function Home() {
                 <input type="text" name="task" value={task.task ? task.task : ""} placeholder="Enter Your Task" onChange={(e) => getValue(e)} />
                 <br /><br />
                 <label htmlFor="">Select Category :- </label>
-                <select name="category" id="" value={task.category?task.category :""} onChange={(e) => getValue(e)}>
+                <select name="category" id="" value={task.category ? task.category : ""} onChange={(e) => getValue(e)}>
                     <option value="">Select Category</option>
                     <option value="personal">Personal</option>
                     <option value="private">Private</option>
@@ -89,20 +91,24 @@ function Home() {
                     <option value="other">Other</option>
                 </select>
                 <br /><br />
-                <button type="submit" style={{ backgroundColor: "gray" }}>{id === 0 ? "Submit":"Edit"}</button>
+                <button type="submit" style={{ backgroundColor: "gray" }}>{id === 0 ? "Submit" : "Edit"}</button>
             </form>
 
             <div>
-                <input type="radio" name="filter" value="" checked={filtered === ""} onChange={(e)=>setFiltered(e.target.value)} />
+                <input type="radio" name="filter" value="" checked={filtered === ""} onChange={(e) => setFiltered(e.target.value)} />
                 <label htmlFor="">All</label>
-                <input type="radio" name="filter" value="personal" checked={filtered === "personal"}  onChange={(e)=>setFiltered(e.target.value)}/>
+                <input type="radio" name="filter" value="personal" checked={filtered === "personal"} onChange={(e) => setFiltered(e.target.value)} />
                 <label htmlFor="">Personal</label>
-                <input type="radio" name="filter" value="private" checked={filtered === "private"} onChange={(e)=>setFiltered(e.target.value)}/>
+                <input type="radio" name="filter" value="private" checked={filtered === "private"} onChange={(e) => setFiltered(e.target.value)} />
                 <label htmlFor="">Private</label>
-                <input type="radio" name="filter" value="family" checked={filtered === "family"} onChange={(e)=>setFiltered(e.target.value)}/>
+                <input type="radio" name="filter" value="family" checked={filtered === "family"} onChange={(e) => setFiltered(e.target.value)} />
                 <label htmlFor="">Family</label>
-                <input type="radio" name="filter" value="other" checked={filtered === "other"} onChange={(e)=>setFiltered(e.target.value)}/>
+                <input type="radio" name="filter" value="other" checked={filtered === "other"} onChange={(e) => setFiltered(e.target.value)} />
                 <label htmlFor="">Other</label>
+            </div>
+
+            <div>
+                <input type="text" placeholder="Search Here" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
 
             <h1>View Your Task</h1>
