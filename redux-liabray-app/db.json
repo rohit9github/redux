@@ -2,19 +2,23 @@
   "todo": [
     {
       "id": "2300",
-      "task": "runnig 5 to 6 in the ground"
+      "task": "runnig 5 to 6 in the ground",
+      "category": "personal"
     },
     {
       "id": "686c",
-      "task": "complete work before 5 pm"
+      "task": "complete work before 5 pm",
+      "category": "private"
     },
     {
       "id": "7426",
-      "task": "8.30 to 10 family time"
+      "task": "8.30 to 10 family time",
+      "category": "family"
     },
     {
       "id": "d66f",
-      "task": "10 to 11 readig time"
+      "task": "10 to 11 readig time",
+      "category": "personal"
     }
   ]
 }
