@@ -11,6 +11,8 @@ function Home() {
     let [id, setId] = useState(0);
     let [filtered, setFiltered] = useState("");
     let [search, setSearch] = useState("");
+    let [sortCriteria, setSortCriteria] = useState(null);
+    let [sortDirection, setSortDirection] = useState('asc');
 
     let data = useSelector(store => store.todo)
 
@@ -71,8 +73,35 @@ function Home() {
         setTask(dd)
         setId(id)
     }
+
+    const sortData = (data) => {
+        if (sortCriteria) {
+            const sortedData = [...data].sort((a, b) => {
+                if (sortDirection === 'asc') {
+                    return a[sortCriteria] > b[sortCriteria] ? 1 : -1;
+                } else {
+                    return a[sortCriteria] < b[sortCriteria] ? 1 : -1;
+                }
+            });
+            return sortedData;
+        } else {
+            return data;
+        }
+    };
+
+    let sortedData = sortData(filtered ? data.filter((v) => v.category === filtered) : data);
+
     let filteredData = filtered ? data.filter((v) => v.category === filtered) : data;
     filteredData = search ? filteredData.filter((v) => v.task.toLowerCase().includes(search.toLowerCase())) : filteredData;
+
+    const toggleSort = (criteria) => {
+        if (criteria === sortCriteria) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortCriteria(criteria);
+            setSortDirection('asc');
+        }
+    };
 
     return (
         <>
@@ -105,6 +134,10 @@ function Home() {
                 <label htmlFor="">Family</label>
                 <input type="radio" name="filter" value="other" checked={filtered === "other"} onChange={(e) => setFiltered(e.target.value)} />
                 <label htmlFor="">Other</label>
+                <div>
+                <button onClick={() => toggleSort('task')}>Sort by Task</button>
+                <button onClick={() => toggleSort('category')}>Sort by Category</button>
+                </div>
             </div>
 
             <div>
